@@ -194,8 +194,8 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
   | > 3000 | 30% | 35% | 35% |
 
 - **FR-011**: When a projectile hits a small asteroid, the asteroid MUST disappear and the score MUST increase by 200. The special life-granting variant of the small asteroid is exempt: it NEVER awards points (see FR-022).
-- **FR-012**: When a projectile hits a medium asteroid, it MUST disappear and spawn two small asteroids whose directions form a V, and the score MUST increase by 50.
-- **FR-013**: When a projectile hits a large asteroid, it MUST disappear and spawn two medium asteroids whose directions form a V, and the score MUST increase by 50.
+- **FR-012**: When a projectile hits a medium asteroid, it MUST disappear and spawn two small asteroids whose directions form a V (headings = parent heading ± 25°), and the score MUST increase by 50.
+- **FR-013**: When a projectile hits a large asteroid, it MUST disappear and spawn two medium asteroids whose directions form a V (headings = parent heading ± 25°), and the score MUST increase by 50.
 - **FR-014**: When two regular asteroids collide with each other, the identical size-based disappearance/splitting rules MUST apply with NO score awarded; the special life-granting asteroid is exempt (see FR-021).
 - **FR-015**: A projectile MUST be consumed when it hits an asteroid (regular or special) and MUST also disappear when it crosses any screen border.
 
@@ -215,7 +215,7 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 
 **Game over**
 
-- **FR-024**: On game over, the words "Game Over" MUST be displayed in very large letters centred on the screen.
+- **FR-024**: On game over, the words "Game Over" MUST be displayed in very large letters — font size ≥ 120 logical pixels (≈20% of the 600 px play-area height) — centred on the screen.
 - **FR-025**: After game over the asteroids MUST keep spawning and behaving exactly as during play (movement, splitting, scoring logic for score display, border removal), and asteroids MUST NOT interact with the "Game Over" letters in any way.
 
 **Display**
@@ -256,7 +256,7 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 - **SC-006**: The death sequence timings match the specification: explosion → 500 ms delay → centre respawn pointing up → 2 s of visible fast blinking, in every death.
 - **SC-007**: In a session where the score passes 500, 1000 and 1500 with a reserve below 5 icons, exactly one special asteroid appears per crossed multiple, collecting it (by projectile or by ship contact) increases the reserve by exactly 1 without ever exceeding 5 icons or costing the ship a life, and the score stays unchanged on collection.
 - **SC-008**: After game over, the "Game Over" text remains centred and fully readable while asteroids keep spawning, moving, splitting and disappearing for at least 60 further seconds, with zero collisions or deflections caused by the text.
-- **SC-009**: The game stays visually smooth (no perceptible stutter) at the maximum asteroid population of 7 plus projectiles and effects, on a typical modern laptop.
+- **SC-009**: The simulation sustains its fixed 60 FPS step (frame time ≤ 16.67 ms) at the maximum asteroid population of 7 plus 5 projectiles and the explosion animation, with no more than 1 dropped frame per second over any 10-second window measured with the browser's performance tools on a typical modern laptop.
 - **SC-010**: Projectiles travel at exactly 1.5× the base speed, never exceed 5 on screen at once (the 6th shot attempt produces no projectile until one disappears), each one disappears on its first asteroid hit or on leaving the screen, and holding the space bar produces a steady burst at a fixed short interval that never breaks the 5-projectile cap.
 - **SC-011**: Thrusting with the up arrow never raises the ship's speed above 1.3× the base speed, no matter how long it is held.
 - **SC-012**: Each shot changes the ship's speed along its nose by exactly 0.15× base towards the tail (from full forward 1.3× base: 1.15, 1.00, 0.85, … in successive shots) and the backward speed never goes below −0.3× base, with 0 tolerance in either direction.
@@ -271,7 +271,7 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 - "Score above 1000 / 2000 / 3000" is interpreted as exclusive: the tier applies when the score strictly exceeds the threshold, so 1000 belongs to the first tier, 2000 to the second and 3000 to the third.
 - The maximum simultaneous asteroid count stays at 3 while the score is above 1000 but not above 2000 (only the >2000 and >3000 steps raise it).
 - Asteroid speed is fixed at creation time (edge spawn or split) according to the tier active at that moment; asteroids already on screen keep the speed they were created with.
-- Asteroids produced by a split use the tier-appropriate speed for their own size and are launched from the parent's position symmetrically around the parent's heading so their directions form a V.
+- Asteroids produced by a split use the tier-appropriate speed for their own size and are launched from the parent's position symmetrically around the parent's heading so their directions form a V; the V half-angle is 25° each side of the parent's heading (a binding constant, not a tuning value).
 - The special life-granting asteroid spawns regardless of the regular-asteroid population cap and does not count toward the 3 / 5 / 7 limit.
 - A projectile hits at most one asteroid per instant and is consumed by it.
 - The regular asteroid that collides with the ship is removed with normal size-based logic but awards no points; other asteroids are unaffected. The special asteroid colliding with the ship is the one exception: it is consumed and grants a life.

@@ -40,17 +40,21 @@ Build a 2D space shooter as a **static, single-page web game written exclusively
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**Status: PASS (vacuous) — flagged for project attention.**
+**Status: PASS — constitution ratified at v1.0.0 (2026-10-04).**
 
-`.specify/memory/constitution.md` is still the **unfilled template**: every principle heading and body is a placeholder (`[PRINCIPLE_1_NAME]`, `[PRINCIPLE_1_DESCRIPTION]`, …) and no version/ratification date is set. Therefore:
+`.specify/memory/constitution.md` now holds five ratified principles (Version 1.0.0, Ratified 2026-10-04):
 
-- There are **no defined gates to violate** — the check passes only because nothing is asserted.
-- No `[SECTION_2]` constraints, no development-workflow or quality gates, no governance rules exist yet.
-- This is recorded as a project-level TODO (ratify the constitution); it does **not** block this feature because no mandatory rule is currently in force.
+- **I. Zero-Dependency Vanilla Stack (NON-NEGOTIABLE)** — satisfied: 0 npm packages, vanilla ES modules + Canvas 2D, Node-only `server.js` (Technical Context, Constraints).
+- **II. Test-First for the DOM-Free Core** — satisfied: `node --test` suite (`tests/*.test.js`) written to fail before implementation; core modules stay DOM-free (Structure Decision, tasks.md test-first notes).
+- **III. Binding Numeric Relationships** — satisfied: all spec relationships locked (1.3× / 0.3× / 0.15× / 1.5× / 10-20-30% multipliers, 800×600); only delegated tuning constants chosen (Constraints, tasks.md T005).
+- **IV. Single Logical Coordinate Space** — satisfied: single 800×600 logical space; uniform scaling only (`contracts/render-contract.md` §2-3).
+- **V. Simplicity / YAGNI** — satisfied: no out-of-scope features (no sound, persistence, mobile controls, leaderboards; spec Assumptions).
 
-Self-imposed quality gates applied to this plan instead (not constitution-derived): 0 runtime dependencies, DOM-free logic core (testable), single 800×600 logical coordinate space, all spec acceptance scenarios traceable to a module.
+Development Workflow gates (tests green, `quickstart.md` V1–V10 sign-off, zero-dependency confirmation, no browser APIs in the core) map to tasks.md T040–T043.
 
-**Re-check after Phase 1 design: PASS (vacuous, unchanged).** Constitution is still the unfilled template; no new principles were ratified during research/design (nor by the 2026-10-04 clarification session), so no design decision can violate one. Design artifacts (`research.md`, `data-model.md`, `contracts/`, `quickstart.md`) satisfy the self-imposed gates above: zero-dependency stack confirmed in R4/R5 (including the Node-only server), DOM-free core guaranteed by `contracts/core-api.md`, single logical coordinate space fixed in `contracts/render-contract.md` §2, and `quickstart.md` maps every SC (SC-001…SC-016) to a runnable check.
+**Re-check after Phase 1 design: PASS (v1.0.0, unchanged).** No design artifact (`research.md`, `data-model.md`, `contracts/`, `quickstart.md`) conflicts with principles I–V: zero-dependency stack confirmed in R4/R5 (including the Node-only server), DOM-free core guaranteed by `contracts/core-api.md`, single logical coordinate space fixed in `contracts/render-contract.md` §2, and `quickstart.md` maps every SC (SC-001…SC-016) to a runnable check.
+
+Self-imposed quality gates applied to this plan in addition to the constitution: single 800×600 logical coordinate space, all spec acceptance scenarios traceable to a module.
 
 ## Project Structure
 
@@ -98,11 +102,13 @@ tests/                   # node --test, imports src/*.js directly (no DOM APIs)
 ├── loop.test.js
 ├── score.test.js
 ├── collision.test.js
-└── spawn.test.js
+├── spawn.test.js
+├── lives.test.js
+└── bonus.test.js
 ```
 
 **Structure Decision**: Single-project static web game (no backend): a static page plus a zero-dependency `server.js` that only serves it. The logic core (`state/entities/update/collision/spawn/score`) is **pure and DOM-free** so it runs unmodified under `node --test`; only `main.js`, `input.js`, `loop.js`, `render/` and `server.js` touch the platform. Rendering is isolated behind `render/index.js(ctx, state)` so the Canvas API is the sole drawing surface.
 
 ## Complexity Tracking
 
-No constitution violations to justify (see Constitution Check — no ratified principles).
+No constitution violations to justify (Constitution Check: PASS against ratified v1.0.0, 2026-10-04).

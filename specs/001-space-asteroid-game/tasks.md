@@ -9,7 +9,7 @@ description: "Task list template for feature implementation"
 
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/, quickstart.md
 
-**Tests**: Included because plan.md §Project Structure and research.md R5 explicitly specify `node --test` test files (`tests/loop.test.js`, `tests/score.test.js`, `tests/collision.test.js`, `tests/spawn.test.js`) and quickstart.md runs `npm test`. Tests are pure-logic only (no browser automation, zero dependencies).
+**Tests**: Included because plan.md §Project Structure and research.md R5 explicitly specify `node --test` test files (`tests/loop.test.js`, `tests/score.test.js`, `tests/collision.test.js`, `tests/spawn.test.js`, `tests/lives.test.js`, `tests/bonus.test.js`) and quickstart.md runs `npm test`. Tests are pure-logic only (no browser automation, zero dependencies).
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -132,6 +132,12 @@ Single project at repository root: `index.html`, `server.js`, `src/`, `tests/` (
 
 **Independent Test**: quickstart.md **V6** and **V8**: fly into regular asteroids and verify explosion, exactly 500 ms absence, respawn at centre pointing up, 2 s fast blinking, icon counter 2 → 1 → 0, immune ship takes no damage, final hit shows giant centred "Game Over" with no in-game restart, and for ≥60 s afterwards asteroids keep spawning/moving/splitting with zero interaction with the letters
 
+### Tests for User Story 4
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [ ] T044 [P] [US4] Create pure-logic tests in `tests/lives.test.js` (`node --test`): hit only in PLAYING when alive/not immune → DYING with 500 ms simulated delay → `lives--`, respawn at 400,300 angle −π/2 with `shieldT = 2000`; hit with 0 reserve → `GAME_OVER` and `ship === null`; immunity blocks regular-asteroid damage but not special-asteroid collection (FR-018/019/020, SC-006)
+
 ### Implementation for User Story 4
 
 - [ ] T030 [US4] Implement the death sequence in `src/update.js`: regular-asteroid hit while alive, not immune and `phase === 'PLAYING'` with `reserveIcons ≥ 1` → `phase = 'DYING'`, `ship.alive = false`, `explosionT = 500`; after 500 ms → `lives--`, recreate ship at 400,300 angle −π/2 speed 0, `shieldT = 2000`, `phase = 'PLAYING'` (FR-018, data-model.md §2 transitions)
@@ -150,6 +156,12 @@ Single project at repository root: `index.html`, `server.js`, `src/`, `tests/` (
 
 **Independent Test**: quickstart.md **V7**: cross 500 points → exactly one soft-green ship-shaped asteroid at base speed; shoot it or fly into it → disappears, +1 icon, score unchanged, ship never harmed (even while immune); it passes straight through regular asteroids with no destruction/split/score; it vanishes at the border; with 5 reserve icons the next 500 multiple spawns nothing (not queued); a 400 → 600 jump spawns exactly one
 
+### Tests for User Story 5
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [ ] T045 [P] [US5] Create pure-logic tests in `tests/bonus.test.js` (`node --test`): `spawnSpecialIfCrossed` fires exactly once per crossed 500 multiple, suppressed with no queue at reserve 5 (400→600 edge case), `grantLife` caps at 6, projectile×special and ship×special grant +1 reserve with 0 score and no ship damage (FR-021/022/023, SC-007)
+
 ### Implementation for User Story 5
 
 - [ ] T035 [US5] Implement the bonus-spawn trigger in `src/spawn.js` and `src/score.js`: `spawnSpecialIfCrossed(state, prevScore, nextScore)` firing when `floor(prev/500) < floor(next/500)` and `reserveIcons < 5` (suppressed with no queue when the reserve is full), invoked from `addScore`; one spawn maximum per crossed multiple (data-model.md §5, FR-021/FR-023, edge case 400→600)
@@ -166,7 +178,7 @@ Single project at repository root: `index.html`, `server.js`, `src/`, `tests/` (
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Run `npm test` and fix any failing assertions in `tests/loop.test.js`, `tests/spawn.test.js`, `tests/score.test.js`, `tests/collision.test.js` until the whole pure-logic suite is green
+- [ ] T040 [P] Run `npm test` and fix any failing assertions in `tests/loop.test.js`, `tests/spawn.test.js`, `tests/score.test.js`, `tests/collision.test.js`, `tests/lives.test.js`, `tests/bonus.test.js` until the whole pure-logic suite is green
 - [ ] T041 Run the full manual validation checklist `quickstart.md` V1–V10 in a browser against `node server.js` (start sequence, flight, firing, tiers, hits/splits, lives/death, bonus life, game over, display scaling, hidden-tab freeze) and fix any deviation
 - [ ] T042 [P] Verify performance per SC-009 and SC-014: constant 60 FPS with 7 asteroids + 5 projectiles using browser performance tools (no FPS widget in the HUD), exact 4:3 upscale with no distortion, scrollbars instead of downscaling under 800×600
 - [ ] T043 Code cleanup pass across `src/`: remove dead code, confirm zero npm dependencies, confirm no browser APIs leak into the DOM-free core (`state/entities/update/collision/spawn/score/config`) and that all HUD strings are English exactly as in the spec
@@ -286,4 +298,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - All numeric relationships from the spec are binding (1.3× / 0.3× / 0.15× / 1.5× / 10-20-30% multipliers) — never retune them
-- `.specify/memory/constitution.md` is still the unfilled template (no ratified principles); no constitution gate applies to this feature (plan.md Constitution Check)
+- `.specify/memory/constitution.md` is ratified at v1.0.0 (2026-10-04); its principles I–V apply to this feature (plan.md Constitution Check)
