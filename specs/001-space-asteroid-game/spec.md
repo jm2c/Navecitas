@@ -27,6 +27,11 @@
 - Q: When the window's shape isn't 4:3, should the 800×600 image keep its proportions or stretch? → A: Keep the 4:3 proportions (uniform scale); the leftover window space is filled with a plain background bar.
 - Q: After Game Over, how does the player start a new game? → A: Only by reloading the page; there is no in-game restart control.
 - Q: Does the game begin playing immediately when the page loads, or does it wait behind a start screen until the player presses a key? → A: Start screen first: the ship sits centred and non-interactive with slowly blinking "Press spacebar to start" at bottom-centre; pressing space plays a 3‑2‑1‑Go countdown (each item starts bigger than the screen, shrinks very fast to about the ship's size placed slightly below it, holds 0.5 s, then the next appears; only "Go" exits by growing to giant size while turning transparent quickly). After the "Go" animation the player takes control and asteroids start spawning.
+- Q: ¿Qué forma debe tener el servidor Node.js que entrega el juego al navegador? → A: Un `server.js` propio del proyecto, sin dependencias, arrancado con `node server.js` (el servidor es Node.js, nunca Python).
+- Q: ¿Con qué proporción deben aparecer los distintos tamaños de asteroide cuando la tabla de dificultad permite más de un tamaño? → A: Rampa por nivel — nivel 2 (>1000–2000): 60% pequeño / 40% mediano; nivel 3 (>2000–3000): 40% pequeño / 35% mediano / 25% grande; nivel 4 (>3000): 30% / 35% / 35%. El nivel 1 sigue siendo 100% pequeño.
+- Q: ¿Debe congelarse el juego cuando el jugador cambia a otra pestaña o ventana y retomar exactamente donde quedó al volver? → A: Sí; se congela toda la simulación (movimiento, cronómetros de muerte, inmunidad y cuenta atrás incluidos) mientras la pestaña está oculta, y se reanuda exactamente donde quedó.
+- Q: ¿En qué idioma deben mostrarse los textos en pantalla, como "Game Over" o "Press spacebar to start"? → A: Inglés, exactamente como están escritos hoy en la especificación.
+- Q: ¿Debe mostrarse en pantalla un contador de FPS para poder verificar el framerate constante de 60? → A: No; el HUD se limita al marcador y a los iconos de vidas, y el framerate se verifica con las herramientas de rendimiento del navegador.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -146,6 +151,9 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 - Any key pressed on the start screen other than the space bar: no effect; only the space bar starts the countdown.
 - Arrow keys or held space bar during the countdown: no effect — the ship cannot move or fire and no projectile exists until the "Go" exit animation finishes (if the space bar is still held then, the normal burst-fire rules apply from that moment).
 - Asteroid spawn timer before the countdown ends: no spawn attempts are made, so the first asteroid can only appear after the player gains control.
+- The tab or window is hidden during the countdown: the current step (including its 0.5 s hold) and the "Go" exit animation keep their exact remaining time and finish after the player returns, never skipping an item or granting control early.
+- The tab or window is hidden while the ship is immune or during the 500 ms post-explosion wait: the remaining immunity or wait time is preserved and continues counting only once the game is visible again.
+- The tab or window is hidden with asteroids in flight: nothing on screen moves, spawns or collides while hidden; on return the simulation continues from the frozen state (FR-033).
 
 ## Requirements *(mandatory)*
 
@@ -175,6 +183,15 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
   | > 3000 | base × 1.3 | base × 1.2 | base × 1.1 | 7 |
 
   No speed or population increases occur beyond the last tier. The cap is a cap on simultaneous existence; spawn attempts must stop while the cap is reached.
+
+  When a spawn attempt is allowed to create more than one size, the size MUST be chosen with these fixed probabilities:
+
+  | Score | Small | Medium | Large |
+  |-------|-------|--------|-------|
+  | 0 – 1000 | 100% | 0% | 0% |
+  | > 1000 – 2000 | 60% | 40% | 0% |
+  | > 2000 – 3000 | 40% | 35% | 25% |
+  | > 3000 | 30% | 35% | 35% |
 
 - **FR-011**: When a projectile hits a small asteroid, the asteroid MUST disappear and the score MUST increase by 200. The special life-granting variant of the small asteroid is exempt: it NEVER awards points (see FR-022).
 - **FR-012**: When a projectile hits a medium asteroid, it MUST disappear and spawn two small asteroids whose directions form a V, and the score MUST increase by 50.
@@ -214,6 +231,10 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 - **FR-031**: When the player presses the space bar on the start screen, a countdown of "3", "2", "1", "Go" MUST play in that order: each item appears larger than the screen, shrinks very fast down to a readable size of roughly the ship's size, positioned slightly below the ship so they never overlap, then holds there for 0.5 seconds before disappearing so the next item can appear. The shrink speed is a design-time tuning constant.
 - **FR-032**: Only the "Go" item has an exit animation: it grows from its readable size up to giant size, leaving the screen while becoming transparent very quickly. During the start screen and the whole countdown the ship stays non-interactive and no asteroids spawn; immediately after the "Go" exit animation finishes, the player gains control of the ship and asteroid spawning begins.
 
+**Visibility and timing**
+
+- **FR-033**: While the browser tab or window containing the game is hidden, the entire simulation MUST freeze: no movement, no spawns, no collisions and no timers advance (death delay, immunity, countdown hold and blink timers included). When the tab becomes visible again the game MUST resume exactly where it stopped, with no time lost or skipped while hidden.
+
 ### Key Entities
 
 - **Ship (player)**: The controllable spacecraft. Attributes: position, angle, speed, lives-in-play, immunity timer, alive/destroyed state, control state (awaiting start on the start screen / frozen during the countdown / active). Speed is a single forward/backward value along the ship's nose (capped at 1.3× base forward and 0.3× base backward), and rotation always re-points the direction of travel.
@@ -242,6 +263,7 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 - **SC-013**: The logical play area is exactly 800×600 pixels in every session: the ship wraps at x = 0/800 and y = 0/600 with 0 px error, the score sits in the top-right corner and the life icons in the top-left corner of that area, and the rendered output is never scaled below 800×600 (on a viewport under 800×600 the page stays 800×600 and scrollbars appear instead of shrinking).
 - **SC-014**: On any enlarged viewport the 4:3 proportions are preserved with 0 distortion: horizontal and vertical scale factors are identical, so a circle drawn in the game stays a circle on screen, and leftover space shows only the plain background.
 - **SC-015**: The start sequence behaves exactly as specified in every session: the start screen shows the centred ship with the slowly blinking "Press spacebar to start" text and zero asteroid spawns, each countdown item holds for 0.5 s (±50 ms) at a size of roughly the ship's size positioned below it, the "Go" exit animation removes it from the screen while fading, control and asteroid spawning begin only after that animation, and no gameplay input has any effect beforehand.
+- **SC-016**: Hiding the tab for 10 seconds at any moment (during the countdown, the 500 ms death delay, the 2 s immunity or normal flight) consumes 0 s of game time: on return the remaining hold/delay/immunity times are exactly what they were when the tab was hidden, no asteroid has moved, spawned or collided, and nothing on screen advanced.
 
 ## Assumptions
 
@@ -257,3 +279,5 @@ Every time the score crosses a multiple of 500 (500, 1000, 1500, …) a special 
 - The special asteroid never awards points (neither on a projectile hit nor on ship contact); it only grants the life. It spawns at most one per crossed 500 multiple, never queued if suppressed by the full reserve.
 - The "Game Over" screen is terminal: the session can be restarted only by reloading the page (no in-game restart control, FR-029); no leaderboard, persistence, sound, mobile controls or multiplayer are in scope for this version.
 - The play area is a fixed logical 800×600 pixel field (FR-026); the display scales it up on viewports larger than 800×600 but never scales it down.
+- Delivery environment (stakeholder constraint): the game is served locally by a Node.js static server — a project-owned `server.js` with no dependencies, started with `node server.js`; Python-based servers are not used.
+- The HUD contains only the score (top-right) and the reserve life icons (top-left); no FPS counter or other debug overlay is displayed (the frame rate is verified with the browser's performance tools).
