@@ -1,0 +1,19 @@
+{
+  "name": "navecitas",
+  "version": "1.0.0",
+  "description": "2D space asteroid shooter - vanilla JavaScript + Canvas 2D, zero dependencies",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "game",
+    "canvas",
+    "asteroids"
+  ],
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}
