@@ -23,7 +23,7 @@ export function applySizeRule(state, asteroid, awardPoints, random = Math.random
 
   if (asteroid.kind === 'SMALL') {
     if (awardPoints) addScore(state, 200);
-    if (random() < POWERUP_DROP_CHANCE) {
+    if (asteroid.mediumFragment === true || random() < POWERUP_DROP_CHANCE) {
       const speed = Math.hypot(asteroid.vx, asteroid.vy);
       const heading = Math.atan2(asteroid.vy, asteroid.vx);
       return [createPowerup(asteroid.x, asteroid.y, heading, speed)];
@@ -41,6 +41,7 @@ export function applySizeRule(state, asteroid, awardPoints, random = Math.random
     ];
     for (const child of children) {
       child.birthStep = state.stepCount;
+      if (asteroid.kind === 'MEDIUM') child.mediumFragment = true;
     }
     return children;
   }
