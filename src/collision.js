@@ -1,5 +1,6 @@
 import { TIMINGS } from './config.js';
 import { applySizeRule, grantLife, reserveIcons } from './score.js';
+import { GAME_EVENTS, emitEvent } from './events.js';
 
 function hits(a, b) {
   const dx = a.x - b.x;
@@ -9,6 +10,8 @@ function hits(a, b) {
 }
 
 function hitShip(state) {
+  emitEvent(state, GAME_EVENTS.LIFE_LOST);
+
   if (reserveIcons(state.lives) >= 1) {
     state.phase = 'DYING';
     state.ship.alive = false;
@@ -17,6 +20,7 @@ function hitShip(state) {
     state.phase = 'GAME_OVER';
     state.ship = null;
     state.doubleShot = false;
+    emitEvent(state, GAME_EVENTS.GAME_OVER);
   }
 }
 
@@ -36,6 +40,7 @@ export function resolveCollisions(state, random = Math.random) {
       } else if (asteroid.kind === 'POWERUP') {
         asteroid.dead = true;
         state.doubleShot = true;
+        emitEvent(state, GAME_EVENTS.POWERUP_COLLECTED);
       } else {
         newChildren.push(...applySizeRule(state, asteroid, true, random));
       }
@@ -57,6 +62,7 @@ export function resolveCollisions(state, random = Math.random) {
       if (!hits(ship, asteroid)) continue;
       asteroid.dead = true;
       state.doubleShot = true;
+      emitEvent(state, GAME_EVENTS.POWERUP_COLLECTED);
     }
 
     if (state.shieldT <= 0) {

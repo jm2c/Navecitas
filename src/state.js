@@ -25,5 +25,6 @@ export function createGame() {
     shieldT: 0,
     blinkT: 0,
     shotT: 0,
+    events: [],
   };
 }

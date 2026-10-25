@@ -8,8 +8,16 @@ import {
 import { createProjectile, createShip } from './entities.js';
 import { tickSpawn } from './spawn.js';
 import { resolveCollisions } from './collision.js';
+import { GAME_EVENTS, emitEvent } from './events.js';
 
 const COUNTDOWN_STEPS = ['3', '2', '1', 'GO'];
+
+const COUNTDOWN_EVENTS = {
+  '3': GAME_EVENTS.COUNTDOWN_3,
+  '2': GAME_EVENTS.COUNTDOWN_2,
+  '1': GAME_EVENTS.COUNTDOWN_1,
+  GO: GAME_EVENTS.COUNTDOWN_GO,
+};
 
 const NO_INPUT = { left: false, right: false, up: false, down: false, fire: false };
 
@@ -24,6 +32,7 @@ function phaseMachine(state, dtMs, input) {
       state.phase = 'COUNTDOWN';
       state.countdownStep = '3';
       state.countdownT = 0;
+      emitEvent(state, GAME_EVENTS.COUNTDOWN_3);
     }
     return;
   }
@@ -35,6 +44,7 @@ function phaseMachine(state, dtMs, input) {
       if (index < COUNTDOWN_STEPS.length - 1) {
         state.countdownStep = COUNTDOWN_STEPS[index + 1];
         state.countdownT = 0;
+        emitEvent(state, COUNTDOWN_EVENTS[state.countdownStep]);
       } else {
         state.phase = 'PLAYING';
         state.countdownStep = null;
@@ -78,6 +88,7 @@ function fire(state, input) {
 
   ship.speed = Math.max(ship.speed - LIMITS.recoil, -LIMITS.back);
   state.shotT = TIMINGS.shotInterval;
+  emitEvent(state, GAME_EVENTS.SHOT);
 }
 
 function moveProjectiles(state, dtMs) {

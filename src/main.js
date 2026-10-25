@@ -5,6 +5,8 @@ import { render } from './render/index.js';
 import { attachInput, getInput, onStartKey } from './input.js';
 import { startLoop } from './loop.js';
 import { loadAssets } from './render/assets.js';
+import { createAudioEngine } from './audio/engine.js';
+import { clearEvents, drainEvents } from './events.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -27,6 +29,11 @@ window.addEventListener('resize', resize);
 resize();
 
 const state = createGame();
+const audio = createAudioEngine();
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearEvents(state);
+});
 
 attachInput();
 onStartKey(() => {
@@ -40,7 +47,10 @@ async function boot() {
 
   startLoop({
     update,
-    render: () => render(ctx, state, performance.now()),
+    render: () => {
+      audio.playEvents(drainEvents(state));
+      render(ctx, state, performance.now());
+    },
     getState: () => state,
     getInput,
   });
