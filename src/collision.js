@@ -65,6 +65,13 @@ export function resolveCollisions(state) {
     for (let j = i + 1; j < asteroids.length; j += 1) {
       const second = asteroids[j];
       if (second.dead || second.kind === 'SPECIAL') continue;
+      if (
+        first.birthStep !== undefined &&
+        second.birthStep !== undefined &&
+        first.birthStep === second.birthStep
+      ) {
+        continue;
+      }
       if (!hits(first, second)) continue;
       newChildren.push(...applySizeRule(state, first, false));
       newChildren.push(...applySizeRule(state, second, false));

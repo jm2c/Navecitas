@@ -207,3 +207,15 @@ test('projectiles vanish at the border without wrapping (FR-015)', () => {
   update(state, DT_MS, input());
   assert.equal(state.projectiles.length, 0);
 });
+
+test('stepCount starts at 0 and advances exactly once per update (birth-instant clock, data-model.md 1)', () => {
+  const state = createGame();
+  assert.equal(state.stepCount, 0);
+  update(state, DT_MS, input());
+  assert.equal(state.stepCount, 1);
+  update(state, DT_MS, input());
+  assert.equal(state.stepCount, 2);
+
+  const played = startGame();
+  assert.ok(played.stepCount > 2);
+});

@@ -30,10 +30,14 @@ export function applySizeRule(state, asteroid, awardPoints) {
     if (awardPoints) addScore(state, 50);
     const childKind = asteroid.kind === 'MEDIUM' ? 'SMALL' : 'MEDIUM';
     const tier = tierFor(state.score);
-    return [
+    const children = [
       createAsteroid(childKind, asteroid.x, asteroid.y, asteroid.heading - V_HALF_ANGLE, tier),
       createAsteroid(childKind, asteroid.x, asteroid.y, asteroid.heading + V_HALF_ANGLE, tier),
     ];
+    for (const child of children) {
+      child.birthStep = state.stepCount;
+    }
+    return children;
   }
 
   return [];

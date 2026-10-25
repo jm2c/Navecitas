@@ -19,6 +19,7 @@ export function createGame() {
     projectiles: [],
     asteroids: [],
     spawnT: 0,
+    stepCount: 0,
     explosionT: 0,
     shieldT: 0,
     blinkT: 0,

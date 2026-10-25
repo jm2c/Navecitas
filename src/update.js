@@ -119,6 +119,8 @@ export function update(state, dtMs, input = NO_INPUT) {
   moveProjectiles(state, dtMs);
   moveAsteroids(state, dtMs);
 
+  state.stepCount += 1;
+
   if (SPAWN_PHASES.has(state.phase)) {
     tickSpawn(state, dtMs);
   }
