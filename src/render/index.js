@@ -4,6 +4,7 @@ import {
   drawProjectile,
   drawAsteroid,
   drawSpecial,
+  drawPowerup,
   drawExplosion,
 } from './shapes.js';
 import {
@@ -29,6 +30,7 @@ export function render(ctx, state, now) {
 
   for (const asteroid of state.asteroids) {
     if (asteroid.kind === 'SPECIAL') drawSpecial(ctx, asteroid);
+    else if (asteroid.kind === 'POWERUP') drawPowerup(ctx, asteroid);
     else drawAsteroid(ctx, asteroid);
   }
 

@@ -20,11 +20,13 @@ test('addScore is monotonic and only adds 50 or 200 (SC-004)', () => {
   assert.equal(state.score, expected);
 });
 
+const NO_DROP = () => 1;
+
 test('five small asteroids destroyed yield exactly 1000 points (SC-004)', () => {
   const state = createGame();
   for (let i = 0; i < 5; i += 1) {
     const small = createAsteroid('SMALL', 400, 300, 0, tierFor(state.score));
-    applySizeRule(state, small, true);
+    applySizeRule(state, small, true, NO_DROP);
   }
   assert.equal(state.score, 1000);
 });
@@ -40,7 +42,7 @@ test('reserveIcons equals max(0, lives - 1)', () => {
 test('a small destroyed with award gains 200 and creates no children (FR-011)', () => {
   const state = createGame();
   const small = createAsteroid('SMALL', 400, 300, 1, tierFor(0));
-  const children = applySizeRule(state, small, true);
+  const children = applySizeRule(state, small, true, NO_DROP);
   assert.equal(state.score, 200);
   assert.equal(children.length, 0);
   assert.equal(small.dead, true);
@@ -82,7 +84,7 @@ test('a large destroyed with award gains 50 and splits into two mediums in a V (
 test('asteroid-vs-asteroid and ship hits award no points (FR-014)', () => {
   const state = createGame();
   const small = createAsteroid('SMALL', 400, 300, 0, tierFor(0));
-  applySizeRule(state, small, false);
+  applySizeRule(state, small, false, NO_DROP);
   assert.equal(state.score, 0);
 
   const medium = createAsteroid('MEDIUM', 400, 300, 0, tierFor(0));

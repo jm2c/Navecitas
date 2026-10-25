@@ -47,7 +47,9 @@ export function tickSpawn(state, dtMs, random = Math.random) {
   if (state.spawnT > 0) return;
 
   const tier = tierFor(state.score);
-  const regular = state.asteroids.filter((asteroid) => asteroid.kind !== 'SPECIAL');
+  const regular = state.asteroids.filter(
+    (asteroid) => asteroid.kind !== 'SPECIAL' && asteroid.kind !== 'POWERUP',
+  );
   if (regular.length < tier.max) {
     const kind = pickKind(tier.weights, random);
     const { x, y, heading } = edgeSpawn(random);

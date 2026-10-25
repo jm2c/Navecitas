@@ -75,6 +75,25 @@ export function drawSpecial(ctx, asteroid) {
   ctx.restore();
 }
 
+export function drawPowerup(ctx, asteroid) {
+  const r = asteroid.radius;
+  ctx.save();
+  ctx.translate(asteroid.x, asteroid.y);
+  ctx.rotate(asteroid.rot);
+  ctx.fillStyle = PALETTE.powerup;
+  ctx.beginPath();
+  ctx.moveTo(0, -r);
+  ctx.lineTo(r, 0);
+  ctx.lineTo(0, r);
+  ctx.lineTo(-r, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = PALETTE.powerupHighlight;
+  ctx.fillRect(-r * 0.45, -1.5, 7, 3);
+  ctx.fillRect(-r * 0.45, 1.5, 7, 3);
+  ctx.restore();
+}
+
 export function drawLifeIcon(ctx, x, y, size = 12) {
   const r = size / 2;
   ctx.save();

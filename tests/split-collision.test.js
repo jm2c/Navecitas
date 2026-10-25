@@ -7,6 +7,7 @@ import { update } from '../src/update.js';
 import { DT_MS, WORLD } from '../src/config.js';
 
 const NONE = { left: false, right: false, up: false, down: false, fire: false };
+const NO_DROP = () => 1;
 
 function playingState(score) {
   const state = createGame();
@@ -19,7 +20,7 @@ function playingState(score) {
 }
 
 function steps(state, count) {
-  for (let i = 0; i < count; i += 1) update(state, DT_MS, NONE);
+  for (let i = 0; i < count; i += 1) update(state, DT_MS, NONE, NO_DROP);
 }
 
 function onScreen(a) {
@@ -33,7 +34,7 @@ test('two colliding medium asteroids leave all four small fragments alive with n
     createAsteroid('MEDIUM', 410, 305, Math.PI, tierFor(state.score)),
   );
 
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 
   assert.equal(state.score, 1500, 'mutual collisions never award points');
   let smalls = state.asteroids.filter((a) => a.kind === 'SMALL');
@@ -54,7 +55,7 @@ test('a large colliding with a small leaves exactly two medium fragments and no 
     createAsteroid('SMALL', 420, 305, Math.PI, tierFor(state.score)),
   );
 
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 
   assert.equal(state.score, 2500, 'mutual collisions never award points');
   let mediums = state.asteroids.filter((a) => a.kind === 'MEDIUM');
@@ -75,7 +76,7 @@ test('a medium removed by a ship collision still splits, with surviving fragment
   const medium = createAsteroid('MEDIUM', 400, 300, 0, tierFor(state.score));
   state.asteroids.push(medium);
 
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 
   assert.equal(state.phase, 'DYING');
   assert.equal(state.score, 1500, 'ship-collision removal awards no points');

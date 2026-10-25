@@ -8,6 +8,7 @@ import { createAsteroid } from '../src/entities.js';
 import { DT_MS, TIMINGS } from '../src/config.js';
 
 const NONE = { left: false, right: false, up: false, down: false, fire: false };
+const NO_DROP = () => 1;
 
 function input(overrides = {}) {
   return { ...NONE, ...overrides };
@@ -31,7 +32,7 @@ function steps(state, count, overrides = {}) {
 function killShip(state) {
   const small = createAsteroid('SMALL', state.ship.x, state.ship.y, 0, tierFor(0));
   state.asteroids.push(small);
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
   return small;
 }
 
@@ -68,7 +69,7 @@ test('the ship cannot be hit again while destroyed during the 500 ms window', ()
 
   const second = createAsteroid('SMALL', 10, 10, 0, tierFor(0));
   state.asteroids.push(second);
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(second.dead, false);
   assert.equal(state.phase, 'DYING');
@@ -81,7 +82,7 @@ test('immunity blocks regular-asteroid damage entirely (FR-019)', () => {
   const small = createAsteroid('SMALL', 10, 10, 0, tierFor(0));
   state.asteroids.push(small);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(state.phase, 'PLAYING');
   assert.equal(state.ship.alive, true);
@@ -106,7 +107,7 @@ test('a hit with no reserve icons ends the game and removes the ship (FR-020)', 
   const small = createAsteroid('SMALL', 10, 10, 0, tierFor(0));
   state.asteroids.push(small);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(state.phase, 'GAME_OVER');
   assert.equal(state.ship, null);

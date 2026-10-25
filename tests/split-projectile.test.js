@@ -7,6 +7,7 @@ import { update } from '../src/update.js';
 import { DT_MS, WORLD } from '../src/config.js';
 
 const NONE = { left: false, right: false, up: false, down: false, fire: false };
+const NO_DROP = () => 1;
 const DEG = Math.PI / 180;
 
 function playingState(score) {
@@ -20,7 +21,7 @@ function playingState(score) {
 }
 
 function steps(state, count) {
-  for (let i = 0; i < count; i += 1) update(state, DT_MS, NONE);
+  for (let i = 0; i < count; i += 1) update(state, DT_MS, NONE, NO_DROP);
 }
 
 function track(state, asteroid) {
@@ -33,7 +34,7 @@ function track(state, asteroid) {
     radius: 3.5,
     dead: false,
   });
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 }
 
 function onScreen(a) {

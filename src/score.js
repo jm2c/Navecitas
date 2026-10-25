@@ -1,5 +1,5 @@
-import { MAX_LIVES, V_HALF_ANGLE } from './config.js';
-import { createAsteroid } from './entities.js';
+import { MAX_LIVES, POWERUP_DROP_CHANCE, V_HALF_ANGLE } from './config.js';
+import { createAsteroid, createPowerup } from './entities.js';
 import { tierFor } from './state.js';
 import { spawnSpecialIfCrossed } from './spawn.js';
 
@@ -18,11 +18,16 @@ export function grantLife(state) {
   state.lives = Math.min(state.lives + 1, MAX_LIVES);
 }
 
-export function applySizeRule(state, asteroid, awardPoints) {
+export function applySizeRule(state, asteroid, awardPoints, random = Math.random) {
   asteroid.dead = true;
 
   if (asteroid.kind === 'SMALL') {
     if (awardPoints) addScore(state, 200);
+    if (random() < POWERUP_DROP_CHANCE) {
+      const speed = Math.hypot(asteroid.vx, asteroid.vy);
+      const heading = Math.atan2(asteroid.vy, asteroid.vx);
+      return [createPowerup(asteroid.x, asteroid.y, heading, speed)];
+    }
     return [];
   }
 

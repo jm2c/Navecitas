@@ -23,6 +23,8 @@ export const PALETTE = {
   fg: '#FFFFFF',
   special: '#7ED9A0',
   specialHighlight: '#A8EBC4',
+  powerup: '#F2C14E',
+  powerupHighlight: '#F8D089',
 };
 
 export const TIMINGS = {
@@ -47,6 +49,8 @@ export const GAME_OVER_FONT = 140;
 export const SPECIAL_SPEED = 200;
 export const SPECIAL_SPAWN_INTERVAL = 500;
 export const V_HALF_ANGLE = (25 * Math.PI) / 180;
+export const POWERUP_SPREAD_HALF_ANGLE = (10 * Math.PI) / 180;
+export const POWERUP_DROP_CHANCE = 0.1;
 
 export const RADII = {
   ship: 16,
@@ -55,6 +59,7 @@ export const RADII = {
   MEDIUM: 26,
   LARGE: 44,
   SPECIAL: 14,
+  POWERUP: 14,
 };
 
 export const SPIN_MIN = 0.4;

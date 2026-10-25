@@ -14,6 +14,8 @@ function playingState() {
   return state;
 }
 
+const NO_DROP = () => 1;
+
 function projectileAt(x, y) {
   return { x, y, vx: 0, vy: 300, radius: 3.5, dead: false };
 }
@@ -25,7 +27,7 @@ test('a projectile consumes the asteroid and awards the size-rule score', () => 
   state.asteroids.push(small);
   state.projectiles.push(projectile);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(projectile.dead, true);
   assert.equal(small.dead, true);
@@ -40,7 +42,7 @@ test('a projectile hit on a medium applies the split with score (FR-012)', () =>
   state.asteroids.push(medium);
   state.projectiles.push(projectile);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(state.score, 50);
   assert.equal(medium.dead, true);
@@ -56,7 +58,7 @@ test('regular versus regular applies the size rule with no score, each pair once
   const second = createAsteroid('MEDIUM', 410, 305, Math.PI, tierFor(0));
   state.asteroids.push(first, second);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(state.score, 0);
   assert.equal(first.dead, true);
@@ -65,7 +67,7 @@ test('regular versus regular applies the size rule with no score, each pair once
   assert.equal(children.length, 4);
 
   const scoreBefore = state.score;
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
   assert.equal(state.score, scoreBefore);
 });
 
@@ -78,7 +80,7 @@ test('a projectile resolves an asteroid before the ship does (R8 order)', () => 
   state.asteroids.push(small);
   state.projectiles.push(projectile);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(small.dead, true);
   assert.equal(projectile.dead, true);
@@ -89,7 +91,7 @@ test('ship versus regular only resolves while alive, playing and outside immunit
   const active = playingState();
   const activeSmall = createAsteroid('SMALL', 10, 10, 0, tierFor(0));
   active.asteroids.push(activeSmall);
-  resolveCollisions(active);
+  resolveCollisions(active, NO_DROP);
   assert.equal(activeSmall.dead, true);
   assert.equal(active.score, 0);
 
@@ -97,14 +99,14 @@ test('ship versus regular only resolves while alive, playing and outside immunit
   immune.shieldT = 1500;
   const immuneSmall = createAsteroid('SMALL', 10, 10, 0, tierFor(0));
   immune.asteroids.push(immuneSmall);
-  resolveCollisions(immune);
+  resolveCollisions(immune, NO_DROP);
   assert.equal(immuneSmall.dead, false);
 
   const dying = playingState();
   dying.phase = 'DYING';
   const dyingSmall = createAsteroid('SMALL', 10, 10, 0, tierFor(0));
   dying.asteroids.push(dyingSmall);
-  resolveCollisions(dying);
+  resolveCollisions(dying, NO_DROP);
   assert.equal(dyingSmall.dead, false);
 });
 
@@ -114,7 +116,7 @@ test('a non-overlapping pair is never resolved', () => {
   const other = createAsteroid('SMALL', 100, 100, Math.PI, tierFor(0));
   state.asteroids.push(far, other);
 
-  resolveCollisions(state);
+  resolveCollisions(state, NO_DROP);
 
   assert.equal(far.dead, false);
   assert.equal(other.dead, false);

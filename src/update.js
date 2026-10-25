@@ -1,4 +1,10 @@
-import { ACCEL, LIMITS, TIMINGS, WORLD } from './config.js';
+import {
+  ACCEL,
+  LIMITS,
+  POWERUP_SPREAD_HALF_ANGLE,
+  TIMINGS,
+  WORLD,
+} from './config.js';
 import { createProjectile, createShip } from './entities.js';
 import { tickSpawn } from './spawn.js';
 import { resolveCollisions } from './collision.js';
@@ -61,9 +67,15 @@ function updateShip(state, dtMs, input) {
 function fire(state, input) {
   const ship = state.ship;
   if (!input.fire || state.shotT > 0) return;
-  if (state.projectiles.length >= LIMITS.maxProjectiles) return;
 
-  state.projectiles.push(createProjectile(ship));
+  if (state.doubleShot) {
+    state.projectiles.push(createProjectile(ship, -POWERUP_SPREAD_HALF_ANGLE));
+    state.projectiles.push(createProjectile(ship, POWERUP_SPREAD_HALF_ANGLE));
+  } else {
+    if (state.projectiles.length >= LIMITS.maxProjectiles) return;
+    state.projectiles.push(createProjectile(ship));
+  }
+
   ship.speed = Math.max(ship.speed - LIMITS.recoil, -LIMITS.back);
   state.shotT = TIMINGS.shotInterval;
 }
@@ -103,7 +115,7 @@ function moveAsteroids(state, dtMs) {
 
 const SPAWN_PHASES = new Set(['PLAYING', 'DYING', 'GAME_OVER']);
 
-export function update(state, dtMs, input = NO_INPUT) {
+export function update(state, dtMs, input = NO_INPUT, random = Math.random) {
   const phaseBefore = state.phase;
   const shieldBefore = state.shieldT;
 
@@ -126,7 +138,7 @@ export function update(state, dtMs, input = NO_INPUT) {
   }
 
   if (SPAWN_PHASES.has(state.phase)) {
-    resolveCollisions(state);
+    resolveCollisions(state, random);
   }
 
   state.projectiles = state.projectiles.filter((projectile) => !projectile.dead);
@@ -138,6 +150,7 @@ export function update(state, dtMs, input = NO_INPUT) {
       state.lives -= 1;
       state.ship = createShip();
       state.shieldT = TIMINGS.immunity;
+      state.doubleShot = false;
       state.phase = 'PLAYING';
     }
   }

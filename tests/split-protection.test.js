@@ -7,6 +7,7 @@ import { update } from '../src/update.js';
 import { DT_MS } from '../src/config.js';
 
 const NONE = { left: false, right: false, up: false, down: false, fire: false };
+const NO_DROP = () => 1;
 
 function playingState(score) {
   const state = createGame();
@@ -19,7 +20,7 @@ function playingState(score) {
 }
 
 function steps(state, count) {
-  for (let i = 0; i < count; i += 1) update(state, DT_MS, NONE);
+  for (let i = 0; i < count; i += 1) update(state, DT_MS, NONE, NO_DROP);
 }
 
 function track(state, asteroid) {
@@ -31,7 +32,7 @@ function track(state, asteroid) {
     radius: 3.5,
     dead: false,
   });
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 }
 
 test('fragments of two different destruction events born in the same instant protect each other (FR-005, clarification Q1)', () => {
@@ -67,12 +68,12 @@ test('a fragment and an asteroid that existed before its birth instant follow no
   assert.equal(fragments.length, 2);
 
   fragments[1].x = -5;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
   assert.equal(state.asteroids.filter((a) => a.kind === 'SMALL').length, 1);
 
   older.x = fragments[0].x;
   older.y = fragments[0].y;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 
   assert.equal(
     state.asteroids.filter((a) => a.kind === 'SMALL').length,
@@ -100,7 +101,7 @@ test('fragments born in consecutive steps follow normal collision rules (FR-005)
   const fromSecondBirth = bornLater[2];
   fromSecondBirth.x = fromFirstBirth.x;
   fromSecondBirth.y = fromFirstBirth.y;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 
   assert.equal(
     state.asteroids.filter((a) => a.kind === 'SMALL').length,
@@ -127,7 +128,7 @@ test('a fragment is an ordinary asteroid: shot for its own points and removed at
 
   const survivor = state.asteroids.filter((a) => a.kind === 'SMALL')[0];
   survivor.x = -5;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
   assert.equal(state.asteroids.filter((a) => a.kind === 'SMALL').length, 0, 'a fragment crossing the border disappears');
   assert.equal(state.score, 1750, 'borders never change the score');
 });

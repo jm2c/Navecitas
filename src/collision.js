@@ -16,10 +16,11 @@ function hitShip(state) {
   } else {
     state.phase = 'GAME_OVER';
     state.ship = null;
+    state.doubleShot = false;
   }
 }
 
-export function resolveCollisions(state) {
+export function resolveCollisions(state, random = Math.random) {
   const asteroids = state.asteroids;
   const newChildren = [];
 
@@ -32,8 +33,11 @@ export function resolveCollisions(state) {
       if (asteroid.kind === 'SPECIAL') {
         asteroid.dead = true;
         grantLife(state);
+      } else if (asteroid.kind === 'POWERUP') {
+        asteroid.dead = true;
+        state.doubleShot = true;
       } else {
-        newChildren.push(...applySizeRule(state, asteroid, true));
+        newChildren.push(...applySizeRule(state, asteroid, true, random));
       }
       break;
     }
@@ -48,11 +52,18 @@ export function resolveCollisions(state) {
       grantLife(state);
     }
 
+    for (const asteroid of asteroids) {
+      if (asteroid.dead || asteroid.kind !== 'POWERUP') continue;
+      if (!hits(ship, asteroid)) continue;
+      asteroid.dead = true;
+      state.doubleShot = true;
+    }
+
     if (state.shieldT <= 0) {
       for (const asteroid of asteroids) {
-        if (asteroid.dead || asteroid.kind === 'SPECIAL') continue;
+        if (asteroid.dead || asteroid.kind === 'SPECIAL' || asteroid.kind === 'POWERUP') continue;
         if (!hits(ship, asteroid)) continue;
-        newChildren.push(...applySizeRule(state, asteroid, false));
+        newChildren.push(...applySizeRule(state, asteroid, false, random));
         hitShip(state);
         break;
       }
@@ -61,10 +72,10 @@ export function resolveCollisions(state) {
 
   for (let i = 0; i < asteroids.length; i += 1) {
     const first = asteroids[i];
-    if (first.dead || first.kind === 'SPECIAL') continue;
+    if (first.dead || first.kind === 'SPECIAL' || first.kind === 'POWERUP') continue;
     for (let j = i + 1; j < asteroids.length; j += 1) {
       const second = asteroids[j];
-      if (second.dead || second.kind === 'SPECIAL') continue;
+      if (second.dead || second.kind === 'SPECIAL' || second.kind === 'POWERUP') continue;
       if (
         first.birthStep !== undefined &&
         second.birthStep !== undefined &&
@@ -73,8 +84,8 @@ export function resolveCollisions(state) {
         continue;
       }
       if (!hits(first, second)) continue;
-      newChildren.push(...applySizeRule(state, first, false));
-      newChildren.push(...applySizeRule(state, second, false));
+      newChildren.push(...applySizeRule(state, first, false, random));
+      newChildren.push(...applySizeRule(state, second, false, random));
     }
   }
 

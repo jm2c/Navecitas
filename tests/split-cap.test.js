@@ -7,6 +7,7 @@ import { update } from '../src/update.js';
 import { DT_MS } from '../src/config.js';
 
 const NONE = { left: false, right: false, up: false, down: false, fire: false };
+const NO_DROP = () => 1;
 
 function playingState(score) {
   const state = createGame();
@@ -27,11 +28,11 @@ function track(state, asteroid) {
     radius: 3.5,
     dead: false,
   });
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
 }
 
 function regulars(state) {
-  return state.asteroids.filter((a) => a.kind !== 'SPECIAL');
+  return state.asteroids.filter((a) => a.kind !== 'SPECIAL' && a.kind !== 'POWERUP');
 }
 
 test('the tier cap gates edge spawns only: fragments are always kept and spawning resumes below the cap (FR-009, FR-006, SC-007)', () => {
@@ -44,14 +45,14 @@ test('the tier cap gates edge spawns only: fragments are always kept and spawnin
   assert.equal(regulars(state).length, 3);
 
   state.spawnT = 0;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
   assert.equal(regulars(state).length, 3, 'at the cap (3) no edge spawn happens');
 
   track(state, state.asteroids[0]);
   assert.equal(regulars(state).length, 4, 'the destruction event kept all of its fragments above the cap');
 
   state.spawnT = 0;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
   assert.equal(regulars(state).length, 4, 'still above the cap: edge spawns stay blocked');
 
   for (let i = 0; i < 2; i += 1) {
@@ -61,6 +62,6 @@ test('the tier cap gates edge spawns only: fragments are always kept and spawnin
   assert.equal(regulars(state).length, 2, 'below the cap after two more kills');
 
   state.spawnT = 0;
-  update(state, DT_MS, NONE);
+  update(state, DT_MS, NONE, NO_DROP);
   assert.equal(regulars(state).length, 3, 'below the cap: edge spawning resumes');
 });
