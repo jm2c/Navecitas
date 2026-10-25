@@ -128,7 +128,7 @@ Single project at repository root: `index.html`, `server.js`, `src/`, `tests/` (
 - [ ] T023 [P] Regression sweep: run the feature-001 checklist `specs/001-space-asteroid-game/quickstart.md` **V1–V10** once to prove nothing outside splitting changed (constitution V)
 - [X] T024 [P] Zero-dependency confirmation: `package.json` unchanged with no runtime dependencies, no new files outside `src/`, `tests/` and `specs/002-fix-asteroid-splitting/`
 - [X] T025 Review the final diff for codebase conventions (existing style, no added comments, no debug leftovers) and for spec compliance against `contracts/split-contract.md`
-- [ ] T026 Commit the changes in `src/`, `tests/` and `specs/002-fix-asteroid-splitting/` on branch `002-fix-asteroid-splitting` once T021–T025 are green
+- [X] T026 Commit the changes in `src/`, `tests/` and `specs/002-fix-asteroid-splitting/` on branch `002-fix-asteroid-splitting` once T021–T025 are green
 
 ---
 
