@@ -1,4 +1,19 @@
 import { PALETTE } from '../config.js';
+import { getAsset } from './assets.js';
+import { assetKeyForAsteroid } from './asset-manifest.js';
+
+const SHIP_EMOJI_ROTATION_OFFSET = Math.PI / 4;
+
+function drawImageContained(ctx, image, x, y, maxWidth, maxHeight, rotation = 0) {
+  const scale = Math.min(maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+  const width = image.naturalWidth * scale;
+  const height = image.naturalHeight * scale;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.drawImage(image, -width / 2, -height / 2, width, height);
+  ctx.restore();
+}
 
 function makeRandom(seed) {
   let s = (seed >>> 0) || 1;
@@ -9,6 +24,13 @@ function makeRandom(seed) {
 }
 
 export function drawShip(ctx, x, y, angle, radius = 16, color = PALETTE.fg) {
+  const image = getAsset('rocket');
+  if (image) {
+    const size = radius * 2.5;
+    drawImageContained(ctx, image, x, y, size, size, angle + SHIP_EMOJI_ROTATION_OFFSET);
+    return;
+  }
+
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
@@ -33,6 +55,14 @@ export function drawProjectile(ctx, projectile) {
 }
 
 export function drawAsteroid(ctx, asteroid) {
+  const key = assetKeyForAsteroid(asteroid.kind);
+  const image = key ? getAsset(key) : null;
+  if (image) {
+    const size = asteroid.radius * 2;
+    drawImageContained(ctx, image, asteroid.x, asteroid.y, size, size, asteroid.rot);
+    return;
+  }
+
   const rnd = makeRandom(asteroid.seed);
   const vertices = 10;
   ctx.save();
@@ -54,6 +84,13 @@ export function drawAsteroid(ctx, asteroid) {
 }
 
 export function drawSpecial(ctx, asteroid) {
+  const image = getAsset('heart');
+  if (image) {
+    const size = asteroid.radius * 2;
+    drawImageContained(ctx, image, asteroid.x, asteroid.y, size, size, asteroid.heading);
+    return;
+  }
+
   const r = asteroid.radius;
   ctx.save();
   ctx.translate(asteroid.x, asteroid.y);
@@ -76,6 +113,13 @@ export function drawSpecial(ctx, asteroid) {
 }
 
 export function drawPowerup(ctx, asteroid) {
+  const image = getAsset('bolt');
+  if (image) {
+    const size = asteroid.radius * 2;
+    drawImageContained(ctx, image, asteroid.x, asteroid.y, size, size, asteroid.rot);
+    return;
+  }
+
   const r = asteroid.radius;
   ctx.save();
   ctx.translate(asteroid.x, asteroid.y);
@@ -95,6 +139,12 @@ export function drawPowerup(ctx, asteroid) {
 }
 
 export function drawLifeIcon(ctx, x, y, size = 12) {
+  const image = getAsset('heart');
+  if (image) {
+    drawImageContained(ctx, image, x, y, size, size);
+    return;
+  }
+
   const r = size / 2;
   ctx.save();
   ctx.translate(x, y);

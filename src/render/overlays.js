@@ -8,11 +8,19 @@ import {
   GO_FONT_END,
   COUNTDOWN_Y,
   GAME_OVER_FONT,
+  FONT_FAMILY,
 } from '../config.js';
 import { drawLifeIcon } from './shapes.js';
 import { reserveIcons } from '../score.js';
 
 const STEP_LABEL = { '3': '3', '2': '2', '1': '1', GO: 'Go' };
+
+function fitFontSize(ctx, text, maxWidth, desiredPx) {
+  ctx.font = `${desiredPx}px ${FONT_FAMILY}`;
+  const width = ctx.measureText(text).width;
+  if (width <= maxWidth) return desiredPx;
+  return Math.max(1, Math.floor((desiredPx * maxWidth) / width));
+}
 
 export function drawStartPrompt(ctx, state) {
   const on = TIMINGS.startBlink;
@@ -20,7 +28,7 @@ export function drawStartPrompt(ctx, state) {
   if (!visible) return;
   ctx.save();
   ctx.fillStyle = PALETTE.fg;
-  ctx.font = '24px sans-serif';
+  ctx.font = `24px ${FONT_FAMILY}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.fillText('Press spacebar to start', WORLD.W / 2, WORLD.H - 40);
@@ -51,7 +59,8 @@ export function drawCountdown(ctx, state) {
   ctx.save();
   ctx.globalAlpha = Math.max(0, alpha);
   ctx.fillStyle = PALETTE.fg;
-  ctx.font = `bold ${font}px sans-serif`;
+  const size = fitFontSize(ctx, STEP_LABEL[step], WORLD.W * 0.9, font);
+  ctx.font = `${size}px ${FONT_FAMILY}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(STEP_LABEL[step], WORLD.W / 2, COUNTDOWN_Y);
@@ -61,7 +70,8 @@ export function drawCountdown(ctx, state) {
 export function drawGameOver(ctx) {
   ctx.save();
   ctx.fillStyle = PALETTE.fg;
-  ctx.font = `bold ${GAME_OVER_FONT}px sans-serif`;
+  const size = fitFontSize(ctx, 'Game Over', WORLD.W * 0.9, GAME_OVER_FONT);
+  ctx.font = `${size}px ${FONT_FAMILY}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('Game Over', WORLD.W / 2, WORLD.H / 2);
@@ -71,7 +81,7 @@ export function drawGameOver(ctx) {
 export function drawScore(ctx, score) {
   ctx.save();
   ctx.fillStyle = PALETTE.fg;
-  ctx.font = '28px sans-serif';
+  ctx.font = `28px ${FONT_FAMILY}`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
   ctx.fillText(String(score), HUD.scoreX, HUD.scoreY);

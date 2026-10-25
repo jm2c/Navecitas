@@ -4,6 +4,7 @@ import { update } from './update.js';
 import { render } from './render/index.js';
 import { attachInput, getInput, onStartKey } from './input.js';
 import { startLoop } from './loop.js';
+import { loadAssets } from './render/assets.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -32,9 +33,17 @@ onStartKey(() => {
   window.scrollTo(0, 0);
 });
 
-startLoop({
-  update,
-  render: () => render(ctx, state, performance.now()),
-  getState: () => state,
-  getInput,
-});
+async function boot() {
+  try {
+    await loadAssets();
+  } catch {}
+
+  startLoop({
+    update,
+    render: () => render(ctx, state, performance.now()),
+    getState: () => state,
+    getInput,
+  });
+}
+
+boot();

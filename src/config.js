@@ -27,6 +27,8 @@ export const PALETTE = {
   powerupHighlight: '#F8D089',
 };
 
+export const FONT_FAMILY = "'Audiowide', 'Trebuchet MS', sans-serif";
+
 export const TIMINGS = {
   shotInterval: 160,
   spawnCadence: 1400,

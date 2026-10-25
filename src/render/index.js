@@ -1,4 +1,5 @@
 import { WORLD, PALETTE, TIMINGS, RADII } from '../config.js';
+import { getAsset } from './assets.js';
 import {
   drawShip,
   drawProjectile,
@@ -21,8 +22,13 @@ function blinkHidden(state) {
 }
 
 export function render(ctx, state, now) {
-  ctx.fillStyle = PALETTE.bg;
-  ctx.fillRect(0, 0, WORLD.W, WORLD.H);
+  const background = getAsset('background');
+  if (background) {
+    ctx.drawImage(background, 0, 0, WORLD.W, WORLD.H);
+  } else {
+    ctx.fillStyle = PALETTE.bg;
+    ctx.fillRect(0, 0, WORLD.W, WORLD.H);
+  }
 
   for (const projectile of state.projectiles) {
     drawProjectile(ctx, projectile);
